@@ -6,9 +6,13 @@ var sideLength = 48;
 var moveX = [-1, 0, 1, 0];
 var moveY = [0, 1, 0, -1];
 var visited = [];
+var stack = [];
+var shouldPass = [];
+var passCounter;
 var visCounter = 0;
 var i, j;
 var gameRunning;
+var time;
 
 for (i = 0; i < mazeSize; ++i) {
     visited[i] = [];
@@ -74,13 +78,16 @@ function placeBlocks() {
 }
 
 function init() {
+    var timer = 0;
+
     var blocks = $(".block");
     for (var i = 0; i < blocks.length - 1; i++) {  // except the last one
         blocks.eq(i).mouseover(function () {
-            if (gameRunning) {
+            if (gameRunning && !$(this).hasClass("invisibleBlock")) {
                 $(this).addClass("newBlock");
                 gameRunning = false;
                 $("#display").html("You lose!");
+                clearInterval(timer);
             }
         });
     }
@@ -90,17 +97,38 @@ function init() {
         for (var i = 0; i < blocks.length - 1; i++) {
             blocks.eq(i).removeClass("newBlock");
         }
-        $("#display").html("Game started, go head!");
+        passCounter = 0;
+        time = 0;
+        clearInterval(timer);
+        timer = setInterval(refleshDisplay, 1000);
     });
 
     $("#end").mouseover(function () {
-        if (gameRunning) {
-            gameRunning = false;
-            $("#display").html("You Win!");
+        if (gameRunning && passCounter > shouldPass.length * 0.9) {  // sometimes the mouse move too fast
+            $("#display").html("You win within " + time + "s!");
+        } else {
+            $("#display").html("Don't cheat, you should start form the 'S' and move to the 'E' inside the maze!");
         }
+        gameRunning = false;
+        clearInterval(timer);
     });
 
+    var invisibleBlocks = $(".invisibleBlock");
+    for (i = 0; i < invisibleBlocks.length; ++i) {
+        invisibleBlocks.eq(i).mouseover(function () {
+            for (j = 0; j < shouldPass.length; ++j) {
+                if ($(this).css("top") == shouldPass[j].css("top") && $(this).css("left") == shouldPass[j].css("left")) {
+                    console.log("right!");
+                    ++passCounter;
+                    break;
+                }
+            }
+        });
+    }
+}
 
+function refleshDisplay() {
+    $("#display").html("Game started, go head! Used time: " + ++time + "s.");
 }
 
 function dfs(x, y) {
@@ -109,11 +137,17 @@ function dfs(x, y) {
     var verticals = $(".vertical");
     var direction, newx, newy;
 
+    if (x == mazeSize - 1 && y == mazeSize - 1) {
+        for (i = 0; i < stack.length; ++i) {
+            shouldPass.push(stack[i]);
+        }
+    }
     visited[x][y] = true;
     ++visCounter;
     if (visCounter == mazeSize * mazeSize)
         return;
 
+    var target;
     while (countValid(x, y)) {
         do {
             direction = Math.floor(Math.random() * 4);
@@ -122,19 +156,22 @@ function dfs(x, y) {
         } while (!isValid(newx, newy));
         switch (direction) {
         case 0:
-            horizons.eq(x * mazeSize + y).hide();
+            target = horizons.eq(x * mazeSize + y);
             break;
         case 1:
-            verticals.eq(x * (mazeSize + 1) + y + 1).hide();
+            target = verticals.eq(x * (mazeSize + 1) + y + 1);
             break;
         case 2:
-            horizons.eq((x + 1) * mazeSize + y).hide();
+            target = horizons.eq((x + 1) * mazeSize + y);
             break;
         case 3:
-            verticals.eq(x * (mazeSize + 1) + y).hide();
+            target = verticals.eq(x * (mazeSize + 1) + y);
             break;
         }
+        stack.push(target);
+        target.addClass("invisibleBlock");
         dfs(newx, newy);
+        stack.pop();
     }
 }
 
@@ -152,3 +189,4 @@ function countValid(x, y) {
     }
     return counter;
 }
+

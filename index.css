@@ -3,7 +3,7 @@ html {
     -moz-user-select    : none;
     -ms-user-select     : none;
     user-select         : none;
-    font-family : "Century Gothic", sans-serif;
+    font-family         : "Century Gothic", sans-serif;
 }
 
 h1, h3, #display {
@@ -28,6 +28,7 @@ h1, h3, #display {
     padding          : 0;
     margin           : 0;
     background-color : #EEEEEE;
+    opacity          : 1;
     position         : absolute;
 }
 
@@ -36,7 +37,16 @@ h1, h3, #display {
     padding          : 0;
     margin           : 0;
     background-color : red;
+    opacity          : 1;
     position         : absolute;
+}
+
+.invisibleBlock {
+    border   : 0;
+    padding  : 0;
+    margin   : 0;
+    opacity  : 0;
+    position : absolute;
 }
 
 .vertical {
