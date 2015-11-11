@@ -1,35 +1,39 @@
 "use strict";
 
+// size
 var mazeSize = 10;
-var N = mazeSize + 1, M = mazeSize;  // create a 10 * 10 maze;
-var sideLength = 48;
+var N = mazeSize + 1, M = mazeSize;
+var sideLength = 48;  // for location
+
+// for creating maze
 var moveX = [-1, 0, 1, 0];
 var moveY = [0, 1, 0, -1];
 var visited = [];
-var stack = [];
-var shouldPass = [];
-var passCounter;
-var visCounter = 0;
-var i, j;
-var gameRunning;
-var time;
 
-for (i = 0; i < mazeSize; ++i) {
-    visited[i] = [];
-    for (j = 0; j < mazeSize; ++j) {
-        visited[i][j] = false;
-    }
-}
+// anti-chect
+var stack = [];
+var shouldPass = [];  // record the road from start to the end
+var passCounter;
+
+// game state
+var gameRunning;
+
+var timeCost;
+
+// for loop
+var i, j;
 
 $(document).ready(function () {
     createBlocks();
     placeBlocks();
+    initDfs();
     dfs(0, 0);
     init();
 });
 
 function createBlocks() {
     var container = $(".container");
+
     for (i = 0; i < N; ++i) {
         for (j = 0; j < M; ++j) {
             var horBlock = $("<div></div>");
@@ -37,6 +41,7 @@ function createBlocks() {
             container.append(horBlock);
         }
     }
+
     for (i = 0; i < N - 1; ++i) {
         for (j = 0; j < M + 1; ++j) {
             var verBlock = $("<div></div>");
@@ -47,7 +52,7 @@ function createBlocks() {
 }
 
 function placeBlocks() {
-    var nowY, nowX;
+    var nowX, nowY;
 
     var horizons = $(".horizontal");
     nowY = 0;
@@ -73,6 +78,7 @@ function placeBlocks() {
         nowX += sideLength + 1;
     }
 
+    // top-left and the bottom-right ones
     verticals.eq(0).hide();
     verticals.eq(verticals.length - 1).hide();
 }
@@ -86,8 +92,8 @@ function init() {
             if (gameRunning && !$(this).hasClass("invisibleBlock")) {
                 $(this).addClass("newBlock");
                 gameRunning = false;
-                $("#display").html("You lose!");
                 clearInterval(timer);
+                $("#display").html("You lose!");
             }
         });
     }
@@ -98,14 +104,15 @@ function init() {
             blocks.eq(i).removeClass("newBlock");
         }
         passCounter = 0;
-        time = 0;
+        timeCost = 0;
         clearInterval(timer);
-        timer = setInterval(refleshDisplay, 1000);
+        $("#display").html("Game started, go head! Used time: " + "0s.");
+        timer = setInterval(refreshDisplay, 1000);
     });
 
     $("#end").mouseover(function () {
         if (gameRunning && passCounter > shouldPass.length * 0.9) {  // sometimes the mouse move too fast
-            $("#display").html("You win within " + time + "s!");
+            $("#display").html("You win within " + timeCost + "s!");
         } else {
             $("#display").html("Don't cheat, you should start form the 'S' and move to the 'E' inside the maze!");
         }
@@ -113,12 +120,13 @@ function init() {
         clearInterval(timer);
     });
 
+    // anti-cheat
     var invisibleBlocks = $(".invisibleBlock");
     for (i = 0; i < invisibleBlocks.length; ++i) {
         invisibleBlocks.eq(i).mouseover(function () {
             for (j = 0; j < shouldPass.length; ++j) {
                 if ($(this).css("top") == shouldPass[j].css("top") && $(this).css("left") == shouldPass[j].css("left")) {
-                    console.log("right!");
+                    // console.log("right!");
                     ++passCounter;
                     break;
                 }
@@ -127,8 +135,17 @@ function init() {
     }
 }
 
-function refleshDisplay() {
-    $("#display").html("Game started, go head! Used time: " + ++time + "s.");
+function refreshDisplay() {
+    $("#display").html("Game started, go head! Used time: " + ++timeCost + "s.");
+}
+
+function initDfs() {
+    for (i = 0; i < mazeSize; ++i) {
+        visited[i] = [];
+        for (j = 0; j < mazeSize; ++j) {
+            visited[i][j] = false;
+        }
+    }
 }
 
 function dfs(x, y) {
@@ -137,20 +154,17 @@ function dfs(x, y) {
     var verticals = $(".vertical");
     var direction, newx, newy;
 
+    visited[x][y] = true;
     if (x == mazeSize - 1 && y == mazeSize - 1) {
         for (i = 0; i < stack.length; ++i) {
             shouldPass.push(stack[i]);
         }
     }
-    visited[x][y] = true;
-    ++visCounter;
-    if (visCounter == mazeSize * mazeSize)
-        return;
 
     var target;
-    while (countValid(x, y)) {
+    while (countValid(x, y)) {  // can go forward
         do {
-            direction = Math.floor(Math.random() * 4);
+            direction = Math.floor(Math.random() * 4);  // randomly choose until get the right one
             newx = x + moveX[direction];
             newy = y + moveY[direction];
         } while (!isValid(newx, newy));
