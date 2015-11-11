@@ -6,6 +6,18 @@ html {
     font-family         : "Century Gothic", sans-serif;
 }
 
+h1 {
+    font-size :24pt;
+}
+
+h3 {
+    font-size: 14pt;
+}
+
+p {
+    font-size: 12pt;
+}
+
 h1, h3, #display {
     margin : 5px;
 }
