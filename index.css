@@ -1,12 +1,26 @@
+html {
+    -webkit-user-select : none;
+    -moz-user-select    : none;
+    -ms-user-select     : none;
+    user-select         : none;
+    font-family : "Century Gothic", sans-serif;
+}
+
+h1, h3, #display {
+    margin : 5px;
+}
+
 .positioner {
-    margin : 0 auto;
-    width  : 510px;
+    margin     : 0 auto;
+    width      : 900px;
+    text-align : center;
 }
 
 .container {
+    margin   : 0 auto;
     position : relative;
-    height   : 510px;
-    width    : 510px;
+    height   : 500px;
+    width    : 491px;
 }
 
 .block {
@@ -14,6 +28,14 @@
     padding          : 0;
     margin           : 0;
     background-color : #EEEEEE;
+    position         : absolute;
+}
+
+.newBlock {
+    border           : 1px solid black;
+    padding          : 0;
+    margin           : 0;
+    background-color : red;
     position         : absolute;
 }
 
@@ -27,3 +49,39 @@
     width  : 48px;
 }
 
+#start, #end {
+    text-align : center;
+    position   : absolute;
+    padding    : 0;
+    margin     : 0;
+    height     : 40px;
+    width      : 40px;
+}
+
+#start {
+    background-color : palevioletred;
+    left             : 9px;
+    top              : 9px;
+}
+
+#end {
+    background-color : greenyellow;
+    right            : 9px;
+    bottom           : 9px;
+}
+
+#start p, #end p {
+    padding        : 0;
+    margin         : 0;
+    line-height    : 40px;
+    vertical-align : middle;
+}
+
+.footer {
+    position : relative;
+}
+
+#sample {
+    left : 570px;
+    top  : 45px;
+}

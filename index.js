@@ -8,6 +8,7 @@ var moveY = [0, 1, 0, -1];
 var visited = [];
 var visCounter = 0;
 var i, j;
+var gameRunning;
 
 for (i = 0; i < mazeSize; ++i) {
     visited[i] = [];
@@ -20,6 +21,7 @@ $(document).ready(function () {
     createBlocks();
     placeBlocks();
     dfs(0, 0);
+    init();
 });
 
 function createBlocks() {
@@ -42,13 +44,14 @@ function createBlocks() {
 
 function placeBlocks() {
     var nowY, nowX;
+
     var horizons = $(".horizontal");
     nowY = 0;
     nowX = 0;
     for (i = 0; i < N; ++i) {
         for (j = 0; j < M; ++j) {
             horizons.eq(i * M + j).css({"left": nowY + "px", "top": nowX + "px"});
-            nowY += sideLength + 1;  // border = 1
+            nowY += sideLength;
         }
         nowY = 0;
         nowX += sideLength + 1;
@@ -60,22 +63,57 @@ function placeBlocks() {
     for (i = 0; i < N - 1; ++i) {
         for (j = 0; j < M + 1; ++j) {
             verticals.eq(i * (M + 1) + j).css({"left": nowY + "px", "top": nowX + "px"});
-            nowY += sideLength + 1;
+            nowY += sideLength;
         }
         nowY = 0;
         nowX += sideLength + 1;
     }
+
+    verticals.eq(0).hide();
+    verticals.eq(verticals.length - 1).hide();
+}
+
+function init() {
+    var blocks = $(".block");
+    for (var i = 0; i < blocks.length - 1; i++) {  // except the last one
+        blocks.eq(i).mouseover(function () {
+            if (gameRunning) {
+                $(this).addClass("newBlock");
+                gameRunning = false;
+                $("#display").html("You lose!");
+            }
+        });
+    }
+
+    $("#start").mouseover(function () {
+        gameRunning = true;
+        for (var i = 0; i < blocks.length - 1; i++) {
+            blocks.eq(i).removeClass("newBlock");
+        }
+        $("#display").html("Game started, go head!");
+    });
+
+    $("#end").mouseover(function () {
+        if (gameRunning) {
+            gameRunning = false;
+            $("#display").html("You Win!");
+        }
+    });
+
+
 }
 
 function dfs(x, y) {
+    // console.log(x, y);
     var horizons = $(".horizontal");
     var verticals = $(".vertical");
-    console.log(x, y);
     var direction, newx, newy;
+
     visited[x][y] = true;
     ++visCounter;
     if (visCounter == mazeSize * mazeSize)
         return;
+
     while (countValid(x, y)) {
         do {
             direction = Math.floor(Math.random() * 4);
