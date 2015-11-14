@@ -33,6 +33,7 @@ h1, h3, #display {
     position : relative;
     height   : 500px;
     width    : 491px;
+    cursor : pointer;
 }
 
 .block {
