@@ -43,6 +43,11 @@ h1, h3, #display {
     background-color : #EEEEEE;
     opacity          : 1;
     position         : absolute;
+    -webkit-transition : background-color 0.5s;
+    -moz-transition    : background-color 0.5s;
+    -ms-transition     : background-color 0.5s;
+    -o-transition      : background-color 0.5s;
+    transition         : background-color 0.5s;
 }
 
 .newBlock {
